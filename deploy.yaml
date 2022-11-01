@@ -18,12 +18,12 @@
 
   - name: Install Kafka
     block:
-      - name: download kafka distibution
+      - name: download Kafka distibution
         get_url: 
           url: '{{ kafka_url }}'
           dest: /tmp
 
-      - name: Unpacking archive with kafka distribution
+      - name: Unpacking archive with Kafka distribution
         unarchive:
           src: '/tmp/{{ kafka_distr }}'
           dest: /opt/kafka
@@ -33,7 +33,7 @@
           path: '/tmp/{{ kafka_distr }}'
           state: absent
 
-      - name: Create symlink for install kafka
+      - name: Create symlink for install Kafka
         file:
           src: '/opt/{{ kafka_distrib }}'
           dest: /opt/kafka
