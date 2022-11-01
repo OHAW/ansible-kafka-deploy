@@ -2,12 +2,6 @@
   hosts: all
   gather_facts: false
   become: yes
-  vars:
-    kafka_url: https://dlcdn.apache.org/kafka/3.3.1/kafka_2.13-3.3.1.tgz
-    kafka_archive: kafka_2.13-3.3.1.tgz
-    kafka_distr: kafka_2.13-3.3.1
-    kafka_user: kafka
-    kafka_group: kafka
 
   tasks:
 
@@ -18,7 +12,7 @@
 
   - name: Install Kafka
     block:
-      - name: download Kafka distibution
+      - name: Download Kafka distibution
         get_url: 
           url: '{{ kafka_url }}'
           dest: /tmp
