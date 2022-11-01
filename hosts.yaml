@@ -1,0 +1,7 @@
+all:
+  hosts:
+    broker1:
+      ansible_host: 192.168.0.110
+      ansible_user: vagrant
+      ansible_password: vagrant
+      ansible_become_pass: vagrant
