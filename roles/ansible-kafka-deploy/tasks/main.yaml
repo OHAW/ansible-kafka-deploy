@@ -1,0 +1,72 @@
+- name: Check Kafka is exist
+  stat:
+    path: '/opt/{{ kafka_distr }}'
+  register: kafka_exists
+
+- name: Create user for Kafka
+  user:
+    name: kafka
+    shell: /bin/nologin
+    
+
+- name: Create user for Zookeeper
+  user:
+    name: zookeeper
+    shell: /bin/nologin
+
+- name: Install Kafka
+  block:
+    - name: Download Kafka distibution
+      get_url: 
+        url: '{{ kafka_url }}'
+        dest: /tmp
+
+    - name: Unpacking archive with Kafka distribution
+      unarchive:
+        src: /tmp/{{ kafka_archive }}
+        dest: /opt
+        group: '{{ kafka_group }}'
+        owner: '{{ kafka_user }}'
+        remote_src: yes
+
+    - name: Delete archive with Kafka distribution
+      file:
+        path: '/tmp/{{ kafka_archive }}'
+        state: absent
+
+    - name: Create symlink for install Kafka
+      file:
+        src: '/opt/{{ kafka_distrib }}'
+        dest: /opt/kafka
+        state: link
+        group: '{{ kafka_group }}'
+        owner: '{{ kafka_user }}'
+  when: kafka_exists.stat.exists == false
+
+- name: Create user for kafka
+  user:
+    name: kafka
+    shell: /bin/nologin
+
+- name: Create user fo zookeeper
+  user:
+    name: zookeeper
+    shell: /bin/nologin
+
+- name: configure systemd kafka
+  template:
+    src: kafka.service.j2
+    dest: /lib/systemd/system/kafka.service
+    group: kafka
+    owner: kafka
+    mode: 0755
+  notify: Restart Kafka service
+
+- name: configure systemd zookeeper
+  template:
+    src: zookeeper.service.j2
+    dest: /lib/systemd/system/kafka.service
+    group: zookeeper
+    owner: zookeeper
+    mode: 0755
+  notify: Restart Zookeeper service

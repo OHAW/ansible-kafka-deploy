@@ -1,65 +1,7 @@
 - name: Download kafka distrib
-  hosts: all
+  hosts: broker1
   gather_facts: false
-  become: yes
+  become: true
 
-  tasks:
-
-  - name: Check Kafka is exist
-    stat:
-      path: '/opt/{{ kafka_distr }}'
-    register: kafka_exists
-
-  - name: Install Kafka
-    block:
-      - name: Download Kafka distibution
-        get_url: 
-          url: '{{ kafka_url }}'
-          dest: /tmp
-
-      - name: Unpacking archive with Kafka distribution
-        unarchive:
-          src: '/tmp/{{ kafka_distr }}'
-          dest: /opt/kafka
-
-      - name: Delete archive with Kafka distribution
-        file:
-          path: '/tmp/{{ kafka_distr }}'
-          state: absent
-
-      - name: Create symlink for install Kafka
-        file:
-          src: '/opt/{{ kafka_distrib }}'
-          dest: /opt/kafka
-          state: link
-          group: kafka
-          owner: kafka
-    when: kafksa_exists.stat.exists == false
-  
-  - name: Create user for kafka
-    user:
-      name: kafka
-      shell: /bin/nologin
-  
-  - name: Create user fo zookeeper
-    user:
-      name: zookeeper
-      shell: /bin/nologin
-
-  - name: configure systemd kafka
-    template:
-      src: kafka.service.j2
-      dest: /lib/systemd/system/kafka.service
-      group: kafka
-      owner: kafka
-      mode: 0755
-    notify: Restart Kafka service
-  
-  - name: configure systemd zookeeper
-    template:
-      src: zookeeper.service.j2
-      dest: /lib/systemd/system/kafka.service
-      group: zookeeper
-      owner: zookeeper
-      mode: 0755
-    notify: Restart Zookeeper service
+  roles:
+    - { role: ansible-kafka-deploy }
