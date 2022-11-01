@@ -1,18 +1,23 @@
-- name: Check Kafka is exist
-  stat:
-    path: '/opt/{{ kafka_distr }}'
-  register: kafka_exists
+- name: Install Java package
+  apt:
+    name: openjdk-8-jdk
+    state: present
+    update_cache: yes
 
 - name: Create user for Kafka
   user:
     name: kafka
     shell: /bin/nologin
-    
 
 - name: Create user for Zookeeper
   user:
     name: zookeeper
     shell: /bin/nologin
+
+- name: Check Kafka is exist
+  stat:
+    path: '/opt/{{ kafka_distr }}'
+  register: kafka_exists
 
 - name: Install Kafka
   block:
@@ -25,8 +30,8 @@
       unarchive:
         src: /tmp/{{ kafka_archive }}
         dest: /opt
-        group: '{{ kafka_group }}'
-        owner: '{{ kafka_user }}'
+        group: '{{ zookeeper_group }}'
+        owner: '{{ zookeeper_user }}'
         remote_src: yes
 
     - name: Delete archive with Kafka distribution
@@ -48,8 +53,8 @@
     src: '/opt/{{ kafka_distr }}'
     dest: /opt/kafka
     state: link
-    group: '{{ kafka_group }}'
-    owner: '{{ kafka_user }}'
+    group: '{{ zookeeper_group }}'
+    owner: '{{ zookeeper_user }}'
 
 - name: Create user for kafka
   user:
@@ -124,6 +129,7 @@
       name: zookeeper
       state: started
       enabled: true 
+  become: yes
 
 - name: Wait for Zookeeper to start
   pause:
@@ -133,4 +139,5 @@
   service:
       name: kafka
       state: started
-      enabled: true 
+      enabled: true
+  become: yes
