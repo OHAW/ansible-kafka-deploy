@@ -1,18 +1,20 @@
-- name: Install Java package
-  apt:
-    name: openjdk-8-jdk
-    state: present
-    update_cache: yes
-
 - name: Create user for Kafka
   user:
     name: kafka
     shell: /bin/nologin
+    state: present
 
 - name: Create user for Zookeeper
   user:
     name: zookeeper
     shell: /bin/nologin
+    state: present
+
+- name: Install Java package
+  apt:
+    name: openjdk-8-jdk
+    state: present
+    update_cache: yes
 
 - name: Check Kafka is exist
   stat:
@@ -30,8 +32,6 @@
       unarchive:
         src: /tmp/{{ kafka_archive }}
         dest: /opt
-        group: '{{ zookeeper_group }}'
-        owner: '{{ zookeeper_user }}'
         remote_src: yes
 
     - name: Delete archive with Kafka distribution
@@ -44,27 +44,7 @@
         src: '/opt/{{ kafka_distr }}'
         dest: /opt/kafka
         state: link
-        group: '{{ kafka_group }}'
-        owner: '{{ kafka_user }}'
   when: kafka_exists.stat.exists == false
-
-- name: Create symlink for install Kafka
-  file:
-    src: '/opt/{{ kafka_distr }}'
-    dest: /opt/kafka
-    state: link
-    group: '{{ zookeeper_group }}'
-    owner: '{{ zookeeper_user }}'
-
-- name: Create user for kafka
-  user:
-    name: kafka
-    shell: /bin/nologin
-
-- name: Create user fo zookeeper
-  user:
-    name: zookeeper
-    shell: /bin/nologin
 
 - name: Create topic logs directory for Kafka
   file:
@@ -123,6 +103,10 @@
     owner: '{{ kafka_user }}'
     mode: 0755
   # notify: Restart Kafka service
+
+- name: Restart systemd
+  systemd:
+    daemon_reload: yes
 
 - name: Restart Zookeeper service
   service:
