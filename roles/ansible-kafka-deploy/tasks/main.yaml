@@ -45,7 +45,8 @@
         dest: /opt/kafka
         state: link
   when: kafka_exists.stat.exists == false
-
+  block:
+  hosts: broker2
 - name: Create topic logs directory for Kafka
   file:
     path: /tmp/lib/kafka/kafka-logs
@@ -93,7 +94,7 @@
     group: '{{ zookeeper_group }}'
     owner: '{{ zookeeper_user }}'
     mode: 0755
-  # notify: Restart Zookeeper service
+  # notify: Start Zookeeper service
 
 - name: configure systemd kafka
   template:
@@ -102,13 +103,14 @@
     group: '{{ kafka_group }}'
     owner: '{{ kafka_user }}'
     mode: 0755
-  # notify: Restart Kafka service
+  # notify: Start Kafka service
 
 - name: Restart systemd
   systemd:
     daemon_reload: yes
+  become: true
 
-- name: Restart Zookeeper service
+- name: Start Zookeeper service
   service:
       name: zookeeper
       state: started
@@ -119,7 +121,7 @@
   pause:
     seconds: 5
 
-- name: Restart Kafka service
+- name: Start Kafka service
   service:
       name: kafka
       state: started

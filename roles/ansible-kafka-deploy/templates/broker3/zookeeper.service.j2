@@ -1,0 +1,16 @@
+[Unit]
+Description=Zookeeper
+Requires=network.target 
+After=network.terget
+
+[Service]
+Type=simple
+User=zookeeper
+Group=zookeeper
+Environment=ZOO_LOG_DIR=/var/log/zookeeper JAVA_HOME=/usr CHDIR=/var/lib/zookeeper
+ExecStart=/opt/kafka/bin/zookeeper-server-start.sh /opt/kafka/config/zookeeper.properties
+ExecStop=/opt/kafka/bin/zookeeper-server-stop.sh
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
